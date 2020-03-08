@@ -206,6 +206,7 @@ app.get("/login", (req,res) => {
 });
 
 app.post('/login', function(req, res, next) {
+    
     passport.authenticate('local', function(err, user, info) {
 
         if (err) { 
@@ -253,6 +254,7 @@ app.post('/login', function(req, res, next) {
         });
 
     })(req, res, next);
+    
 });
 
 
@@ -275,11 +277,11 @@ app.get("/register", (req,res) => {
 
 
 app.post("/register", (req,res) => {
-
     var newUser = {
         name: req.body.name,
         email: req.body.email,
-        password: req.body.password
+        password: req.body.password,
+        subjects: req.body.subjects
     }
 
     usersDatabase.insert(newUser, (err,user) => { //user has an _id atribuite where newUser doesnt

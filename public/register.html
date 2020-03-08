@@ -67,10 +67,11 @@
                 
                 let label = document.createElement('label')
                 label.className = "container"
-                label.innerText = subject
+                label.innerText = subject //for displayng test
 
                 let input = document.createElement('input')
                 input.type = 'checkbox'
+                input.value = subject //for reading subject
                 label.appendChild(input)
 
                 let span = document.createElement('span')
@@ -87,8 +88,21 @@
             var name = document.forms["registerForm"]["name"].value;
             var email = document.forms["registerForm"]["email"].value;
             var password = document.forms["registerForm"]["password"].value;
-  
-            const data = {name,email,password}
+            
+            var subjects = []
+            var checkboxes = document.querySelectorAll('input[type=checkbox]:checked')
+
+            for (var i = 0; i < checkboxes.length; i++) {
+                subjects.push(checkboxes[i].value)
+            }
+
+            const data = {
+                name: name,
+                email: email,
+                password: password,
+                subjects: subjects
+                
+            }
    
             const options ={
                 method: 'post',
