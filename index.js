@@ -320,20 +320,8 @@ app.post("/getArticles", (req,res) =>{
     //Get array of subjects for currently logged in user
     var subjects = req.user.subjects
 
+    var uniqueSearchTerms = subjectsToSearchTerms(subjects)
 
-    console.log("subjects " + subjects)
-    //convert subjects into an array
-    let noSub = subjects.length
-    var subjectTerms = []
-    for(var i=0; i<noSub; i++){
-        subjectTerms.push(searchTerms[subjects[i]])
-    }
-    console.log("subject terms : " + subjectTerms)
-
-    //get rid of duplicates
-    var uniqueSet = new Set(subjectTerms) //convert array to set, only supports unique
-    var toServe = [...uniqueSet] //convert set back to array
-    console.log(toServe)
 
     //create a new dict where each subject contains an array of articles
     articles = {
@@ -631,39 +619,25 @@ async function updateArticles(fireDate){
 
 //updateArticles(Date()) //Temp 
 
-var chosenSubjects = [
-    "Chemistry",
-    "Physics",
-    "Psychology",
-    "Design",
-    "Digital Solutions",
-    "Engineering",
-    "Industrial Technology Skills",
-    "General Mathematics",
-    "Mathematical Methods",
-    "Essential Mathematics",
-]
-console.log(chosenSubjects)
+function subjectsToSearchTerms(chosenSubjects){
+    //convert subjects into an array to search
+    var toSearch = [] //define empty array
 
-//convert subjects into an array to search
-var toSearch = [] //define empty array
+    let noSub = chosenSubjects.length //get length to loop through each subject
+    for(var i=0; i<noSub; i++){
 
-let noSub = chosenSubjects.length //get length to loop through each subject
-for(var i=0; i<noSub; i++){
+        let currentSubject = chosenSubjects[i]
+        var term = searchTerms[currentSubject]
 
-    let currentSubject = chosenSubjects[i]
-    var term = searchTerms[currentSubject]
+        if (term == undefined){
+            term = currentSubject
+        }
 
-    if (term == undefined){
-        term = currentSubject
+        toSearch.push(term)
     }
 
-    toSearch.push(term)
-}
-
-console.log("subject terms : " + toSearch)
-
-//get rid of duplicates
-var uniqueSet = new Set(toSearch) //convert array to set, only supports unique
-var toServe = [...uniqueSet] //convert set back to array
-console.log(toServe)
+    //get rid of duplicates
+    var uniqueSet = new Set(toSearch) //convert array to set, only supports unique
+    var toServe = [...uniqueSet] //convert set back to array
+    return toServe
+};
