@@ -28,7 +28,10 @@
 
     <form id="subjectSelection" name="subjectSelection">
 
+
+
         <input type="button" onclick="formSubmit()" value="Register">
+        
     </form>
 
     <div id=errorMessage></div>
@@ -54,30 +57,28 @@
             for(var i=0; i<length; i++){
                 let subject = supportedSubjects[i]
 
-                /* Add this to the form named subjectSelectrion, using divs to wrap it up nicely
-                    <input type="checkbox" name="subject" value="subject">
-                    <label for="subject"> subjectt</label>
-                */
-
-                let div = document.createElement('div')
-                div.id = "subject"
+                /* Add this to the form named subjectSelectrion
                 
-                let input = document.createElement("input")
-                input.type = "checkbox"
-                input.id = subject //to link to label
-                input.name = subject //for js
-                input.value = subject
-                div.appendChild(input)
+                <label class="container">Subject
+                <input type="checkbox"> //can add checked = "checked to make it pre selected"
+                <span class="checkmark"></span>
+                </label>
+                */
+                
+                let label = document.createElement('label')
+                label.className = "container"
+                label.innerText = subject
 
-                let label = document.createElement("label")
-                label.for = subject //to link to label
+                let input = document.createElement('input')
+                input.type = 'checkbox'
+                label.appendChild(input)
 
-                label.innerText = subject 
-                div.appendChild(label)
+                let span = document.createElement('span')
+                span.className = "checkmark"
+               
+                label.appendChild(span)
 
-                document.getElementById("subjectSelection").prepend(div)
-
-                $()
+                document.getElementById("subjectSelection").prepend(label)              
             };
         };
 
