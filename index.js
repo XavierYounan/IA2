@@ -158,6 +158,7 @@ var j = schedule.scheduleJob('0 1 * * *', function(fireDate){
 passport.use(new LocalStrategy({
     usernameField: "email",
 },
+
 function(username, password, done) {
   usersDatabase.findOne({ email: username }, function(err, user) {
     if (err) { return done(err); }
@@ -318,11 +319,56 @@ app.post("/getArticles", (req,res) =>{
 
     //Get array of subjects for currently logged in user
     var subjects = req.user.subjects
-    
-    console.log(subjects)
-    //Shuffle subjects
-    subjects = shuffle(subjects)
 
+
+    console.log("subjects " + subjects)
+    //convert subjects into an array
+    let noSub = subjects.length
+    var subjectTerms = []
+    for(var i=0; i<noSub; i++){
+        subjectTerms.push(searchTerms[subjects[i]])
+    }
+    console.log("subject terms : " + subjectTerms)
+
+    //get rid of duplicates
+    var uniqueSet = new Set(subjectTerms) //convert array to set, only supports unique
+    var toServe = [...uniqueSet] //convert set back to array
+    console.log(toServe)
+
+    //create a new dict where each subject contains an array of articles
+    articles = {
+
+    }
+
+    const numSubjects = toServe.length
+
+    for(var i=0; i<numSubjects; i++){
+        var term = toServe[i]
+        
+        database.find({subject: term}, (err,data) =>{
+            if(err){
+                /*
+                    dont add the subjects articles because experienced an error
+                    Log a message into the console to notify developer
+                */
+                console.error(err)
+            } else { //dont use return because want to loop through other subjects
+                if (data.length == 0){
+                    //same as above for logging
+                    console.log("Database find for subject " + term + " returned nothing. Data: " + data)
+                }else{
+                    console.log("succes search, for term :" + term)
+                    console.log(data)
+                    articles[term] = data
+                }
+            }
+        })
+    }
+
+    console.log('gathering all articles is complete, Articles: ')
+    console.log(articles)
+
+    /*
     //Create an empty response JSON object
     var resData = {
         articles: []
@@ -370,7 +416,8 @@ app.post("/getArticles", (req,res) =>{
                 res.json(resData)
             }
         });
-    };    
+    }; 
+    */   
 });
 
 
@@ -539,19 +586,20 @@ async function writeArticlesToDb(db){
 
     const promises = [];
 
-    const noSubjects = supportedSubjects.length
+    var searchTermsValues = Object.values(searchTerms)
+    var uniqueSet = new Set(searchTermsValues) //convert array to set, only supports unique
+    var toSearch = [...uniqueSet] //convert set back to array
+
+
+    const noSubjects = toSearch.length
 
     var i = 0
 
     while(i<noSubjects){
-        let subject = supportedSubjects[i]
+        let subject = toSearch[i]
         promises.push(getArticles(subject,db));
-        console.log("reqeusted an article")
         await wait(10000);
-        console.log("finsihed waiting")
-        console.log(promises)
         i++
-        console.log(i)
     }
     await Promise.all(promises) //wait for all calls to finsih
     return 
@@ -582,3 +630,40 @@ async function updateArticles(fireDate){
 //#endregion
 
 //updateArticles(Date()) //Temp 
+
+var chosenSubjects = [
+    "Chemistry",
+    "Physics",
+    "Psychology",
+    "Design",
+    "Digital Solutions",
+    "Engineering",
+    "Industrial Technology Skills",
+    "General Mathematics",
+    "Mathematical Methods",
+    "Essential Mathematics",
+]
+console.log(chosenSubjects)
+
+//convert subjects into an array to search
+var toSearch = [] //define empty array
+
+let noSub = chosenSubjects.length //get length to loop through each subject
+for(var i=0; i<noSub; i++){
+
+    let currentSubject = chosenSubjects[i]
+    var term = searchTerms[currentSubject]
+
+    if (term == undefined){
+        term = currentSubject
+    }
+
+    toSearch.push(term)
+}
+
+console.log("subject terms : " + toSearch)
+
+//get rid of duplicates
+var uniqueSet = new Set(toSearch) //convert array to set, only supports unique
+var toServe = [...uniqueSet] //convert set back to array
+console.log(toServe)
