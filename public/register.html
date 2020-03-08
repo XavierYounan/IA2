@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="style.css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Register</title>
+</head>
+<body>
+    <h1>Register</h1>
+    <form name="registerForm">
+        <div>
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+
+        <div>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+
+        <div>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+    </form>
+
+    <form id="subjectSelection" name="subjectSelection">
+
+        <input type="button" onclick="formSubmit()" value="Register">
+    </form>
+
+    <div id=errorMessage></div>
+
+    <br>
+
+    <p1>Already have an account? </p1>
+    <a href="/login">Login</a>
+    
+    <!-- jQuery JS -->
+    <script src="https://code.jquery.com/jquery.js"></script>
+
+    <script>
+        getSubjects()
+        async function getSubjects(){
+
+            const response = await fetch('/getSubjects',{method: 'post'}); //ensure post using dict
+            const json = await response.json();
+    
+            supportedSubjects = json.subjects
+
+            var length = supportedSubjects.length
+            for(var i=0; i<length; i++){
+                let subject = supportedSubjects[i]
+
+                /* Add this to the form named subjectSelectrion, using divs to wrap it up nicely
+                    <input type="checkbox" name="subject" value="subject">
+                    <label for="subject"> subjectt</label>
+                */
+
+                let div = document.createElement('div')
+                div.id = "subject"
+                
+                let input = document.createElement("input")
+                input.type = "checkbox"
+                input.id = subject //to link to label
+                input.name = subject //for js
+                input.value = subject
+                div.appendChild(input)
+
+                let label = document.createElement("label")
+                label.for = subject //to link to label
+
+                label.innerText = subject 
+                div.appendChild(label)
+
+                document.getElementById("subjectSelection").prepend(div)
+
+                $()
+            };
+        };
+
+        async function formSubmit()
+        {
+            var name = document.forms["registerForm"]["name"].value;
+            var email = document.forms["registerForm"]["email"].value;
+            var password = document.forms["registerForm"]["password"].value;
+  
+            const data = {name,email,password}
+   
+            const options ={
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json'},
+                body: JSON.stringify(data) 
+                };
+                
+            const response = await fetch('/register', options);
+            const json = await response.json();
+
+           if(json.success == true){
+                window.sessionStorage.setItem("name",json.name)
+                window.location.replace("http://localhost:3000/"); //replace because user shouldnt be able to go back once submitted
+            }else{
+                var message = json.message
+                $("#errorMessage").text(message)
+            }
+            
+        }
+    </script>   
+
+
+</body>
+</html>

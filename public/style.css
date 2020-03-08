@@ -1,0 +1,50 @@
+html{
+    background-color: #993300
+}
+body{
+    text-align: center;
+    color: #ffeee6;
+    font-family: monospace;
+}
+
+h1{
+    text-align: center;
+    color: #ffeee6;
+    font-family: monospace;
+}
+
+input {
+    width: 10%;
+    transition: width 0.4s ease-in-out;
+    border: 2px solid #ffaa80;
+
+    border-radius: 5px;
+
+    padding: 5px 5px;
+    
+
+    background-color: #ffccb3;
+    color: #4d1a00;
+    
+    font-family: monospace;
+
+    margin-bottom: 10px; 
+  }
+
+
+
+input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus{
+    font-family: monospace;
+    background-color:#ffddcc;
+    outline: none; 
+    border: 2px solid #ff9966;
+    width: 20%;
+}
+
+#article{
+    background-color:  #4d1a00;
+}
+
+#errorMessage{
+    color: black;
+}

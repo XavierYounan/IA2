@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="style.css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Login</title>
+</head>
+<body>
+    
+    <h1>Login</h1>
+    <form name="loginForm">
+
+        <div>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+
+        <div>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <input type="button" onclick="formSubmit()" value="Login">
+    </form>
+
+    <div id=errorMessage></div>
+
+    <br>
+
+    <p1>Don't have an account? </p1>
+    <a href="/register">Register</a>
+    
+    <!-- jQuery JS -->
+    <script src="https://code.jquery.com/jquery.js"></script>
+
+    <script>
+        
+        async function formSubmit()
+        {
+            var email = document.forms["loginForm"]["email"].value;
+            var password = document.forms["loginForm"]["password"].value;
+
+            const data = {name,email,password}
+   
+            const options ={
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json'},
+                body: JSON.stringify(data) 
+                };
+       
+            //send the data
+            const response = await fetch('/login', options);
+            const json = await response.json();
+           
+      
+
+            if(json.success == true){
+                window.sessionStorage.setItem("name",json.name)
+                window.location.replace("http://localhost:3000/"); //replace because user shouldnt be able to go back once submitted
+            }else{
+                var message = json.message
+                $("#errorMessage").text(message)
+            }
+            
+            
+            
+            
+        }
+    </script>
+
+
+</body>
+</html>
