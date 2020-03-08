@@ -30,18 +30,11 @@ var name = sessionStorage.getItem('name'); //currently is undefined, session sto
 console.log(name)
 */
 
-queryDB(["Ancient History"])//,"Joe"])
+requestArticles()
 
-async function queryDB(subjects){
+async function requestArticles(){
 
-    const options ={
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json'},
-        body: JSON.stringify(subjects)
-        };
-
-    const response = await fetch('/queryDB', options);
+    const response = await fetch('/getArticles', {method: 'post'});
     const json = await response.json();
     const articles = json.articles
     

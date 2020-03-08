@@ -17,7 +17,7 @@ const cookieParser = require('cookie-parser')
 
 //Set constants
 
-const subjects = [
+const supportedSubjects = [
 "General Mathematics",
 "Mathematical Methods",
 "Essential Mathematics",
@@ -179,7 +179,7 @@ function(username, password, done) {
 
 app.get("/", (req,res) => {
     var currentUser = req.user
-    console.log("curren user is: " + JSON.stringify(currentUser))
+    //console.log("curren user is: " + JSON.stringify(currentUser))
     if(currentUser == undefined) {
         //console.log("Page / redirected, user: " + currentUser)
         res.redirect("/login")
@@ -314,11 +314,12 @@ app.post("/register", (req,res) => {
     });       
 });
 
-app.post("/queryDB", (req,res) =>{
-    let subjects = req.body //Extract subjects from the request
-   
-    //Check database has recently updated subjects, if not update
+app.post("/getArticles", (req,res) =>{
 
+    //Get array of subjects for currently logged in user
+    var subjects = req.user.subjects
+    
+    console.log(subjects)
     //Shuffle subjects
     subjects = shuffle(subjects)
 
@@ -375,7 +376,7 @@ app.post("/queryDB", (req,res) =>{
 
 app.post("/getSubjects", (req,res) =>{ //sends the supported subjects 
     data = {
-        subjects: subjects
+        subjects: supportedSubjects
     }
 
     res.json(data)
@@ -538,12 +539,12 @@ async function writeArticlesToDb(db){
 
     const promises = [];
 
-    const noSubjects = subjects.length
+    const noSubjects = supportedSubjects.length
 
     var i = 0
 
     while(i<noSubjects){
-        let subject = subjects[i]
+        let subject = supportedSubjects[i]
         promises.push(getArticles(subject,db));
         console.log("reqeusted an article")
         await wait(10000);
