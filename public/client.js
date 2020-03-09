@@ -129,7 +129,8 @@ async function requestArticles(){
         div3.appendChild(div4)
         div.appendChild(div3)
 
-        var container = document.getElementsByClassName( 'content' ).getElementsByClassName( 'container' )[0];
+
+        var container = document.getElementById('contentContainer')
         container.appendChild(div)
 
 
@@ -165,7 +166,7 @@ async function requestArticles(){
         div.appendChild(source)
         */
 
-        document.getElementById("ArticleHolder").appendChild(div)
+        //document.getElementById("ArticleHolder").appendChild(div)
         
         /*}else{
             let headline = document.createElement('h2')
