@@ -386,10 +386,11 @@ function getReference(multimedia){
     var mmediaLength = multimedia.length // Find the number of references to the image
     for (var i=0; i<mmediaLength ; i++){
         if(multimedia[i].subtype == "superJumbo"){ // Loop through and check if multimedia is super jumbo
-            return multimedia[i].url  // Exit the loop and return the url
+            let endUrl = multimedia[i].url  // Exit the loop and return the url
             
+            return "https://static01.nyt.com/" + endUrl
         }
-    }    
+    }    n
 };
 
 
@@ -406,7 +407,7 @@ function toNYTdate(date){
     let NYTdate = (date.getYear() + 1900).toString();
 
     //add month
-    var month = (date.getMonth() + 1).toString(); //calculate string value of month
+    var month = (date.getMonth() + 1).toString(); //calculate string value of months
     month = ("0" + month).slice(-2); //ensure month is a 2 digit number string
     NYTdate += month; //add month to the date
 
@@ -508,7 +509,7 @@ async function getArticles(subject,db){
             }
             
             db.insert(data) //insert the data into the database
-            //console.log("inserted into the database")
+            console.log("inserted into the database, subject: " + subject)
             //console.log("Inserted into the database") // 
         }
         
