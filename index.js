@@ -21,7 +21,6 @@ const supportedSubjects = [
 "General Mathematics",
 "Mathematical Methods",
 "Essential Mathematics",
-"Math",
 "English",
 "Literature",
 "Essential English",
@@ -478,24 +477,33 @@ async function getArticles(subject,db){
         for (var i=0; i<numResults; i++) //temp to find right multimedia
         {   
             var article = docs[i]
-            let headline = article.headline.main
+          
+            let headline = article.headline.main;
             let abstract = article.abstract;
+            let imageReference = getReference(article.multimedia);
+            let author = article.byline.original;
+            let publicationDate = article.pub_date;
+            let firstPara = article.lead_paragraph;
             let url = article.web_url;
-            let source = article.source;
-            let publicationDate = article.pub_date
             let wordCount = article.word_count
-            let imageReference = getReference(article.multimedia)
-            
+            let source = article.source;
+
             // Construct the data into a Js object
             let data = { 
-                subject: subject,
-                articleNumber: i,
+                //Information for displaying article
                 headline: headline,
                 abstract: abstract,
-                url: url,
-                source: source,
+                imageReference: imageReference,
+                author: author,
                 publicationDate: publicationDate,
+                firstPara: firstPara,
+                url: url,
                 wordCount: wordCount,
+                source: source, 
+
+                //Information for server
+                subject: subject,
+                articleNumber: i,
                 day: new Date().getDay()
             }
             
@@ -585,4 +593,4 @@ function subjectsToSearchTerms(chosenSubjects){
 };
 
 
-updateArticles(Date()) //Temp 
+//updateArticles(Date()) //Temp 
