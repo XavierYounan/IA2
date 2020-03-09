@@ -91,6 +91,9 @@ async function requestArticles(){
         let div = document.createElement('div')
         div.className = "post"
 
+        let hr = document.createElement("hr")
+        div.appendChild(hr)
+
         let headline = document.createElement("h1")
         headline.innerHTML = article.headline
         div.appendChild(headline)
@@ -108,6 +111,8 @@ async function requestArticles(){
         let a = document.createElement('a')
         a.className = 'read-more'
         a.href = article.url
+        a.target= "_blank"
+        a.innerText = "Read More"
         div2.appendChild(a)
 
         div.appendChild(div2)

@@ -138,20 +138,33 @@ img.img-intro {
     font-weight: 400;
 }
 .content .post img { margin-bottom: 20px }
+
 .content .post hr {
+    border: 1px solid black;
+    width: 50%;
+    /*
     content: url(../img/separator.png);
     width: 66px;
     height: 7px;
     float: left;
     border: none;
+    */
 }
+
+
 .content .post h1:before {
+    border: 1px solid black;
+    width: 50%;
+    /*
     content: url(../img/separator.png);
     position: absolute;
     top: -35px;
     left: 1px;
+    */
 }
+
 .in-content { margin-top: 55px }
+
 a.read-more {
     padding: 5px 10px;
     background-color: #FFF;
@@ -194,10 +207,15 @@ a.read-more:hover {
 	border-bottom: 1px dotted #ccc
 }
 .foot-post:before {
+    border: 1px solid black;
+    width: 50%;
+    
+    /*
     content: url(../img/separator.png);
     position: absolute;
     top: -40px;
     left: 1px;
+    */
 }
 /* Footer */
 footer .btn {
