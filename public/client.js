@@ -92,14 +92,15 @@ async function requestArticles(){
         div.className = "post"
 
         let hr = document.createElement("hr")
+        hr.className = "large"
         div.appendChild(hr)
 
         let headline = document.createElement("h1")
         headline.innerHTML = article.headline
         div.appendChild(headline)
 
-        let hr = document.createElement("hr")
-        div.appendChild(hr)
+        let hr2 = document.createElement("hr")
+        div.appendChild(hr2)
 
         let div2 = document.createElement('div')
         div2.className = 'in-content'

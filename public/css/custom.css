@@ -142,6 +142,8 @@ img.img-intro {
 .content .post hr {
     border: 1px solid black;
     width: 50%;
+    margin-top: 0px;
+    margin-bottom: 10px;
     /*
     content: url(../img/separator.png);
     width: 66px;
@@ -155,6 +157,9 @@ img.img-intro {
 .content .post h1:before {
     border: 1px solid black;
     width: 50%;
+    margin-top: 0.67em;
+    margin-bottom: 0.67em;
+   
     /*
     content: url(../img/separator.png);
     position: absolute;
@@ -209,7 +214,7 @@ a.read-more:hover {
 .foot-post:before {
     border: 1px solid black;
     width: 50%;
-    
+
     /*
     content: url(../img/separator.png);
     position: absolute;
