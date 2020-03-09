@@ -320,92 +320,39 @@ app.post("/getArticles", (req,res) =>{
     //Get array of subjects for currently logged in user
     var subjects = req.user.subjects
 
-    var uniqueSearchTerms = subjectsToSearchTerms(subjects)
+    var toServe = subjectsToSearchTerms(subjects)
 
-
-    //create a new dict where each subject contains an array of articles
-    articles = {
-
+    console.log(toServe)
+    var query = {
+        $or: [
+        ]
     }
 
     const numSubjects = toServe.length
 
     for(var i=0; i<numSubjects; i++){
-        var term = toServe[i]
-        
-        database.find({subject: term}, (err,data) =>{
-            if(err){
-                /*
-                    dont add the subjects articles because experienced an error
-                    Log a message into the console to notify developer
-                */
-                console.error(err)
-            } else { //dont use return because want to loop through other subjects
-                if (data.length == 0){
-                    //same as above for logging
-                    console.log("Database find for subject " + term + " returned nothing. Data: " + data)
-                }else{
-                    console.log("succes search, for term :" + term)
-                    console.log(data)
-                    articles[term] = data
-                }
-            }
-        })
+        query.$or.push({subject: toServe[i]})
     }
 
-    console.log('gathering all articles is complete, Articles: ')
-    console.log(articles)
-
-    /*
-    //Create an empty response JSON object
-    var resData = {
-        articles: []
-    }
-
-    //Loop through each subject and add subject with the highest priority each time
-    const numSubjects = subjects.length
-    
-    var subjectIndex = {}
-
-    for(var i = 0; i<numSubjects; i++){ //loop through all subjects
-        subjectIndex[subjects[i]] = 0
-    }
-
-    for(var i = 0; i<numResults; i++){
-        var subIndex = (i % numSubjects)
-        var subject = subjects[subIndex]
-        var subjectTimes = subjectIndex[subject]
-        subjectIndex[subject] = subjectTimes + 1
-
-        database.find({subject: subject, articleNumber: subjectTimes}, (err,data) => { //add functions
-            if(err){
-                var article = {
-                    issue: "database.find returned an error",
-                    code: 1,
-                    err: err
+    database.find(query, (err,data) => {
+        if(err){
+            console.error(err)
+            res.end()
+        } else {
+            if (data.length == 0)
+            {
+                console.log("database find returned nothing. Data :" + data)
+                res.end()
+            } else {
+                response = {
+                    articles: data
                 }
-            }else{
-                if (data.length == 0)
-                {
-                    var article = {
-                        issue: "No results for given subject",
-                        code: 2,
-                        err: [subject,subjectTimes]
-                    }
-                }else{
-                    var article = data[0]
-                    article.code = 0
-                }
-            }
-            let length = resData.articles.push(article)
 
-            if(length == 10){
-                //Since function is asnyc ensure ten entries exist (will always be 10 casue errors return articles)
-                res.json(resData)
+                console.log(response)
+                res.json(response)
             }
-        });
-    }; 
-    */   
+        }
+    });
 });
 
 
@@ -574,11 +521,8 @@ async function writeArticlesToDb(db){
 
     const promises = [];
 
-    var searchTermsValues = Object.values(searchTerms)
-    var uniqueSet = new Set(searchTermsValues) //convert array to set, only supports unique
-    var toSearch = [...uniqueSet] //convert set back to array
-
-
+    var toSearch = subjectsToSearchTerms(supportedSubjects)
+    
     const noSubjects = toSearch.length
 
     var i = 0
@@ -617,8 +561,6 @@ async function updateArticles(fireDate){
 }
 //#endregion
 
-//updateArticles(Date()) //Temp 
-
 function subjectsToSearchTerms(chosenSubjects){
     //convert subjects into an array to search
     var toSearch = [] //define empty array
@@ -641,3 +583,6 @@ function subjectsToSearchTerms(chosenSubjects){
     var toServe = [...uniqueSet] //convert set back to array
     return toServe
 };
+
+
+updateArticles(Date()) //Temp 
