@@ -635,4 +635,4 @@ function subjectsToSearchTerms(chosenSubjects){
 };
 
 
-updateArticles(Date()) //Temp 
+//updateArticles(Date()) //Temp 
