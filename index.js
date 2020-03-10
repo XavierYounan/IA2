@@ -321,7 +321,7 @@ app.post("/getArticles", (req,res) =>{
 
     var toServe = subjectsToSearchTerms(subjects)
 
-    console.log(toServe)
+    //console.log(toServe) //Temp
     var query = {
         $or: [
         ]
@@ -385,12 +385,13 @@ function getReference(multimedia){
 
     var mmediaLength = multimedia.length // Find the number of references to the image
     for (var i=0; i<mmediaLength ; i++){
+        //should add support for multiple types
         if(multimedia[i].subtype == "superJumbo"){ // Loop through and check if multimedia is super jumbo
             let endUrl = multimedia[i].url  // Exit the loop and return the url
             
             return "https://static01.nyt.com/" + endUrl
         }
-    }    n
+    }    
 };
 
 

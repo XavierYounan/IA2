@@ -208,9 +208,18 @@ a.read-more:hover {
     text-decoration: none;
     color: #535353;
 }
+.foot-post p {
+    font-weight: 400;
+    text-decoration: none;
+    color: #535353;
+    text-transform: capitalize;
+}
+/* using it not as a link 
 .foot-post a:hover {
 	border-bottom: 1px dotted #ccc
 }
+*/
+
 .foot-post:before {
     border: 1px solid black;
     width: 50%;

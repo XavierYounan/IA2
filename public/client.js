@@ -29,10 +29,34 @@ if ('serviceWorker' in navigator) {
 var name = sessionStorage.getItem('name'); //currently is undefined, session store might not be working correcty
 console.log(name)
 */
+const weekday=new Array(7);
+weekday[0]="Monday";
+weekday[1]="Tuesday";
+weekday[2]="Wednesday";
+weekday[3]="Thursday";
+weekday[4]="Friday";
+weekday[5]="Saturday";
+weekday[6]="Sunday";
+
+const months = [
+    "January",
+    "Febuary",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+]
 
 requestArticles()
 
 async function requestArticles(){
+    
 
     const response = await fetch('/getArticles', {method: 'post'});
     const json = await response.json();
@@ -45,7 +69,7 @@ async function requestArticles(){
     for(var i=0; i<noArticles; i++){
         var article = articles[i]
         
-        console.log(article) //Temp
+        //console.log(article) //Temp
         /* Article is as follows
         
         //Information for displaying article
@@ -105,6 +129,17 @@ async function requestArticles(){
         let div2 = document.createElement('div')
         div2.className = 'in-content'
 
+        let img = document.createElement('img');
+        img.className = "right"
+        img.src =  article.imageReference
+        div2.appendChild(img)
+
+        let abstract = document.createElement('p')
+        abstract.innerHTML = article.abstract
+        div2.appendChild(abstract)
+
+        div2.appendChild(document.createElement('br'))
+    
         let firstPara = document.createElement("p")
         firstPara.innerHTML = article.firstPara
         div2.appendChild(firstPara)
@@ -132,53 +167,51 @@ async function requestArticles(){
         authorDiv.appendChild(author)
         div4.appendChild(authorDiv)
 
-        div3.appendChild(div4)
-        div.appendChild(div3)
+        //Add word count
+        let wordCountDiv = document.createElement('div')
+        wordCountDiv.className = "unit-100"
 
-
-        var container = document.getElementById('contentContainer')
-        container.appendChild(div)
-
-
-        /*
-        let abstract = document.createElement("h3")
-        abstract.innerHTML = article.abstract
-        div.appendChild(abstract)
-
-        console.log("image reference is : " + article.imageReference)
-        //Insert image here
-
-       
-
-        let publicationDate = document.createElement("p3")
-        publicationDate.innerHTML = article.publicationDate
-        div.appendChild(publicationDate)
-
-        let firstPara = document.createElement("p1")
-        
-        div.appendChild(firstPara)
-
-        let url = document.createElement('a')
-        url.innerHTML = "link" 
-        url.href = article.url
-        div.appendChild(url)
+        let wordCountTitle = document.createElement('strong')
+        wordCountTitle.innerHTML = "Word Count: "
+        wordCountDiv.appendChild(wordCountTitle)
 
         let wordCount = document.createElement('a')
         wordCount.innerHTML = article.wordCount
-        div.appendChild(wordCount)
+        wordCountDiv.appendChild(wordCount)
 
-        let source = document.createElement("p1")
-        source.innerHTML = article.source + "<br>"
-        div.appendChild(source)
-        */
+        div4.appendChild(wordCountDiv)
 
-        //document.getElementById("ArticleHolder").appendChild(div)
+        //Add publication date
+        let dateObj = new Date(article.publicationDate);
+
+        console.log(dateObj)
         
-        /*}else{
-            let headline = document.createElement('h2')
-            headline.innerHTML = "ERROR, Article not defined, code: " + article.code
-            $("#ArticleHolder").append(headline)
-            //Do nothing for now 
-        }*/
+        let dayNo = dateObj.getDay();
+        let dayText = weekday[dayNo];
+        let date = dateObj.getDate();
+        let monthNo = dateObj.getMonth();
+        let monthText = months[monthNo];
+
+        let dayDiv = document.createElement('div');
+        dayDiv.className = "unit-100";
+
+        let dayTitle = document.createElement('strong');
+        dayTitle.innerHTML = "Publication Date : ";
+        dayDiv.appendChild(dayTitle);
+
+        let day = document.createElement('a');
+        day.innerHTML = dayText + " " + date + " " + monthText;
+        dayDiv.appendChild(day);
+
+        div4.appendChild(dayDiv);
+        
+
+        //add all divs
+        div3.appendChild(div4);
+        div.appendChild(div3);
+
+        //add full div to page
+        var container = document.getElementById('contentContainer');
+        container.appendChild(div);
     }
 }
