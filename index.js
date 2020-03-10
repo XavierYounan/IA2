@@ -346,7 +346,7 @@ app.post("/getArticles", (req,res) =>{
                     articles: data
                 }
 
-                console.log(response)
+                //console.log(response)
                 res.json(response)
             }
         }
