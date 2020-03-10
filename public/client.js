@@ -126,13 +126,21 @@ async function requestArticles(){
         let hr2 = document.createElement("hr")
         div.appendChild(hr2)
 
-        let div2 = document.createElement('div')
+        var div2 = document.createElement('div')
         div2.className = 'in-content'
 
-        let img = document.createElement('img');
-        img.className = "right"
-        img.src =  article.imageReference
-        div2.appendChild(img)
+        var imageRef = article.imageReference
+        
+        if(imageRef == "noImage")
+        {
+            console.log("no image")
+        }else{
+            let img = document.createElement('img');
+            img.className = "right"
+            img.src =  imageRef
+            div2.appendChild(img)
+            console.log("image, src: " + imageRef)
+        }
 
         let abstract = document.createElement('p')
         abstract.innerHTML = article.abstract

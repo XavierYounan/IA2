@@ -12,7 +12,6 @@ const cookieParser = require('cookie-parser')
 //const sqlite3 = require('sqlite3')
 
 
-
 //  PUT THE DATA IN THE GET REQUEST !!!!!
 
 //Set constants
@@ -384,16 +383,57 @@ function shuffle(a) {
 function getReference(multimedia){
 
     var mmediaLength = multimedia.length // Find the number of references to the image
+    if(mmediaLength == 0){
+        return "noImage"
+    }
+    
     for (var i=0; i<mmediaLength ; i++){
-        //should add support for multiple types
+
+        //main
         if(multimedia[i].subtype == "superJumbo"){ // Loop through and check if multimedia is super jumbo
-            let endUrl = multimedia[i].url  // Exit the loop and return the url
+            var endUrl = multimedia[i].url  // Exit the loop and return the url
             
-            return "https://static01.nyt.com/" + endUrl
+            if(endUrl) {
+                console.log("first")
+                return  "https://static01.nyt.com/" + endUrl
+            }
         }
+
+        //backup
+        if(multimedia[i].subtype == "xlarge"){ // Loop through and check if multimedia is xlarge
+            var endUrl = multimedia[i].url  // Exit the loop and return the url
+
+            if(endUrl){
+                console.log("seccond")
+                return  "https://static01.nyt.com/" + endUrl
+            }
+        }
+
+        if(multimedia[i].subtype == "jumbo"){ // Loop through and check if multimedia is jumbo
+            var endUrl = multimedia[i].url  // Exit the loop and return the url
+            if(endUrl){
+
+                return getAnyImage(multimedia)
+            }else{
+                console.log("thrid")
+                return  "https://static01.nyt.com/" + endUrl
+            }
+            
+        } 
     }    
 };
 
+function getAnyImage(multimedia){
+
+    var mmediaLength = multimedia.length // Find the number of references to the image
+    for (var i=0; i<mmediaLength ; i++){
+        var endUrl = multimedia[i].url
+        console.log("any, try: " + i)
+        if(endUrl){   
+            return  "https://static01.nyt.com/" + endUrl
+        }
+    }
+}
 
 function toNYTdate(date){
     //converts the date into a NYT date
@@ -460,7 +500,7 @@ async function getArticles(subject,db){
     query = query + "&begin_date=" + lastWeek; //apped the steralised begin date to the query
     query = query + "&end_date=" + today; //append the steralised end date to the query
     query = query + "&sort=" + sort; //append the sort type to the query
-    //console.log(query) //Temp
+    console.log(query) //Temp
     
     const res = await fetch(query)
 
@@ -510,7 +550,7 @@ async function getArticles(subject,db){
             }
             
             db.insert(data) //insert the data into the database
-            console.log("inserted into the database, subject: " + subject)
+            //console.log("inserted into the database, subject: " + subject)
             //console.log("Inserted into the database") // 
         }
         
@@ -595,4 +635,4 @@ function subjectsToSearchTerms(chosenSubjects){
 };
 
 
-//updateArticles(Date()) //Temp 
+updateArticles(Date()) //Temp 
