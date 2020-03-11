@@ -350,19 +350,22 @@ app.post("/getArticles", (req,res) =>{
 
                 for(var i=0; i<numArticles; i++){
                     //get article
-                    let article= articles[i].headline
-                    console.log(header)
+                    var article = articles[i]
+                    var headline = article.headline
 
                     //if article doesnt already exist in response
-                    if(!(response.includes(article))){
+                    if(!(response.includes(headline))){
                         //add it to response
                         response.push(article)
                     }  
                 }
-                
-                console.log(JSON.stringify(response))
 
-                res.json(response)
+                //make the rsponses a json object not an array
+                let toSend = {
+                    articles: response
+                }
+
+                res.json(toSend)
             }
         }
     });

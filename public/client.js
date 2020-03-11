@@ -60,6 +60,7 @@ async function requestArticles(){
 
     const response = await fetch('/getArticles', {method: 'post'});
     const json = await response.json();
+
     const articles = json.articles
     
     
