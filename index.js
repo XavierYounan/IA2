@@ -64,7 +64,7 @@ const supportedSubjects = [
 "Diploma of Buisness"
 ]
 
-searchTerms = {
+searchTerms = { //When evaluate say a list would have been better
 "General Mathematics" : "Math",
 "Mathematical Methods" : "Math",
 "Essential Mathematics": "Math",
@@ -342,11 +342,26 @@ app.post("/getArticles", (req,res) =>{
                 console.log("database find returned nothing. Data :" + data)
                 res.end()
             } else {
-                response = {
-                    articles: data
-                }
+                var articles = data
+                var response = []
 
-                //console.log(response)
+                //Loop through articles
+                var numArticles = articles.length
+
+                for(var i=0; i<numArticles; i++){
+                    //get article
+                    let article= articles[i].headline
+                    console.log(header)
+
+                    //if article doesnt already exist in response
+                    if(!(response.includes(article))){
+                        //add it to response
+                        response.push(article)
+                    }  
+                }
+                
+                console.log(JSON.stringify(response))
+
                 res.json(response)
             }
         }
