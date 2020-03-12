@@ -313,24 +313,61 @@ app.post("/register", (req,res) => {
     });       
 });
 
-app.post("/getArticles", (req,res) =>{
+async function buildResponse(toServe){
+    var promises = [];
+
+    const numSubjects = toServe.length
+    for(var i=0; i<numSubjects; i++){
+
+        var subject = toServe[i]
+        
+        promises.push(searchDB(subject))
+    }
+
+    return Promise.all(promises)
+
+}
+
+async function searchDB(term){  
+    database.find({subject: term}, (err,data) => {
+        if(err){
+            console.error(err);
+            return 
+        }
+            
+        if(data.length == 0){
+            console.log("database find returned nothing. Data :" + data)
+            return 
+        }
+        
+        return data
+    });
+}
+
+
+
+app.post("/getArticles", async (req,res) =>{
 
     //Get array of subjects for currently logged in user
     var subjects = req.user.subjects
 
     var toServe = subjectsToSearchTerms(subjects)
 
+    /*
     //console.log(toServe) //Temp
     var query = {
         $or: [
         ]
     }
+    */
 
-    const numSubjects = toServe.length
+    
 
-    for(var i=0; i<numSubjects; i++){
-        query.$or.push({subject: toServe[i]})
-    }
+    var response = await buildResponse(toServe)
+
+    console.log(response)
+
+    /*
 
     database.find(query, (err,data) => {
         if(err){
@@ -369,6 +406,7 @@ app.post("/getArticles", (req,res) =>{
             }
         }
     });
+    */
 });
 
 
