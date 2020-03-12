@@ -323,8 +323,8 @@ async function buildResponse(toServe){
         
         promises.push(searchDB(subject))
     }
-
-    return Promise.all(promises)
+    
+    await Promise.all(promises)
 
 }
 
@@ -339,7 +339,7 @@ async function searchDB(term){
             console.log("database find returned nothing. Data :" + data)
             return 
         }
-        
+
         return data
     });
 }
