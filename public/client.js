@@ -61,6 +61,11 @@ async function requestArticles(){
     const response = await fetch('/getArticles', {method: 'post'});
     const json = await response.json();
 
+    console.log(json)
+
+    /*
+
+    
     const articles = json.articles
     
     
@@ -69,6 +74,7 @@ async function requestArticles(){
 
     for(var i=0; i<noArticles; i++){
         var article = articles[i]
+        */
         
         //console.log(article) //Temp
         /* Article is as follows
@@ -112,7 +118,7 @@ async function requestArticles(){
 
         
        
-
+        /*
         let div = document.createElement('div')
         div.className = "post"
 
@@ -223,4 +229,5 @@ async function requestArticles(){
         var container = document.getElementById('contentContainer');
         container.appendChild(div);
     }
+    */
 }

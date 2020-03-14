@@ -1,13 +1,35 @@
+
 const express = require('express'); //import express framework
 const fs = require('fs'); //import file system framework
 const Datastore = require('nedb'); //import database framework
 const fetch = require("node-fetch"); //import fetch function
 const schedule = require('node-schedule')
+
+
 //const initalizePassport = require('./passport-config')
 const passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy;
 
 const cookieParser = require('cookie-parser')
+
+
+// importing not wokring
+async function promiseAllProperties(promisesMap) {
+    if (promisesMap === null || typeof promisesMap !== 'object') {
+        return Promise.reject(new TypeError('The input argument must be of type Object'));
+    }
+    const keys = Object.keys(promisesMap);
+    const promises = keys.map((key) => {
+        return promisesMap[key];
+    });
+    const results = await Promise.all(promises);
+    return results.reduce((resolved, result, index) => {
+        resolved[keys[index]] = result;
+        return resolved;
+    }, {});
+}
+
+
 
 //const sqlite3 = require('sqlite3')
 
@@ -141,7 +163,6 @@ app.use(cookieParser())
 // session.
 app.use(passport.initialize());
 app.use(passport.session());
-
 
 
 app.use(express.json({limit: '1mb'}));
@@ -314,34 +335,50 @@ app.post("/register", (req,res) => {
 });
 
 async function buildResponse(toServe){
-    var promises = [];
 
-    const numSubjects = toServe.length
-    for(var i=0; i<numSubjects; i++){
+    let promise = new Promise( (resolve, reject) => {
+        var promises = [];
+        var articles = {};
 
-        var subject = toServe[i]
-        
-        promises.push(searchDB(subject))
-    }
+        const numSubjects = toServe.length
+
+        for(var i=0; i<numSubjects; i++){
+
+            var subject = toServe[i]
+
+             articles[subject] = searchDB(subject);
+  
+        }
+
+        const promise = promiseAllProperties(articles)
+ 
+        promise.then((resolvedObject) => {
+            resolve(resolvedObject)
+        });
+    });
     
-    await Promise.all(promises)
-
+    return promise
 }
 
 async function searchDB(term){  
-    database.find({subject: term}, (err,data) => {
-        if(err){
-            console.error(err);
-            return 
-        }
-            
-        if(data.length == 0){
-            console.log("database find returned nothing. Data :" + data)
-            return 
-        }
+    let promise = new Promise( (resolve,reject) =>{
+        database.find({subject: term}, (err,data) => {
+            if(err){
+                console.error(err);
+                reject(err)
+            }
+                
+            if(data.length == 0){
+                console.log("database find returned nothing. Data :" + data);
+                reject("database find returned nothig. Data : " + data);
+            }
 
-        return data
+            console.log("data is " + data)
+
+            resolve(data)
+        });
     });
+    return promise
 }
 
 
@@ -361,11 +398,11 @@ app.post("/getArticles", async (req,res) =>{
     }
     */
 
-    
+   buildResponse(toServe).then(response => {
+        res.json(response)
+   });
 
-    var response = await buildResponse(toServe)
 
-    console.log(response)
 
     /*
 
