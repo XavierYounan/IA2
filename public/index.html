@@ -29,12 +29,33 @@
 
 
 <div class="container-fluid">
+    <br>
+    <br>
+    <br>
+    <div class="jumbotron">
+        <h1>New York Times Article Search</h1>
+        <p>
+            The following articles have been returned based on your liked subjects <br>
+        </p>
+    </div>
+
+    <!-- Grey with black text -->
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
+        <!-- Navbar text-->
+        <span class="navbar-text" id="currentArticles">
+            <p id="currentArticles">It wont chagne</p>
+        </span>
+       
+    </nav>
+  
+  <!-- Black with white text -->
+  <nav >...</nav>
+
+
     <div class="row "> 
-        <div class="col-sm-4">
-            <button type="button" class="btn btn-default btn-block btn-group-vertical active", onclick="loadArticles(this)">All Articles</button>
-            <button type="button" class="btn btn-default btn-block btn-group-vertical", onclick="loadArticles(this)">maths</button>
-
-
+        <div class="col-sm-4" id="buttons"> 
+            <br>
+            <button type="button" class="btn btn-default btn-block ", onclick="loadArticles(this)">All Articles</button>
         </div>
         <div class="col-sm-8">
             <div class="content">

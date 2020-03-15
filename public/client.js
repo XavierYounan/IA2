@@ -58,22 +58,40 @@ const months = [
 loadProcess()
 
 
-
-
 async function loadProcess(){
     const data = await requestArticles()
     
-
     const combinedArticles = fCombineArticles(data)
   
     //make global variables
     window.data = data
     window.combinedArticles = combinedArticles
 
-    displayArticles(combinedArticles)
+    createButtons(Object.keys(data))
+
+    displayArticles(combinedArticles, true, "All Articles")
 
 }
 
+function createButtons(subjects){
+    var size = subjects.length
+    
+    for(var i=0; i<size; i++){
+        /* create this
+        <button type="button" class="btn btn-default btn-block btn-group-vertical", onclick="loadArticles(this)">maths</button>
+        */
+       var button = document.createElement("button")
+
+       button.type = "button"
+       button.className = "btn btn-default btn-block "
+       button.onclick = function(){loadArticles(this)};
+       button.innerText = subjects[i]
+
+        //add button to div
+        var buttonDiv = document.getElementById('buttons');
+        buttonDiv.appendChild(button);
+    }
+}
 
 function fCombineArticles(data){
     var subjects = Object.keys(data)
@@ -125,15 +143,21 @@ function loadArticles(obj){
 
 
     if(subject == "All Articles"){
-        displayArticles(combinedArticles)
+        displayArticles(combinedArticles, true, "All Articles")
     }
     else{
-        displayArticles(data.subject)
+        displayArticles(data[subject], false, subject)
     }
 }
 
-function displayArticles(articleArray){
- 
+function displayArticles(articleArray, isAll, sub){
+    //empty the current articles
+    $('#contentContainer').empty();
+
+
+    //add full div to page
+    let p = document.getElementById('currentArticles');
+    p.innerText = "Currently displaying results for " + sub + "."
 
     let articleArrayLength = articleArray.length
     for(var i=0; i<articleArrayLength; i++){
@@ -213,13 +237,13 @@ function displayArticles(articleArray){
         
         if(imageRef == "noImage")
         {
-            console.log("no image")
+          
         }else{
             let img = document.createElement('img');
             img.className = "right"
             img.src =  imageRef
             div2.appendChild(img)
-            console.log("image, src: " + imageRef)
+
         }
 
         let abstract = document.createElement('p')
@@ -271,8 +295,6 @@ function displayArticles(articleArray){
 
         //Add publication date
         let dateObj = new Date(article.publicationDate);
-
-        console.log(dateObj)
         
         let dayNo = dateObj.getDay();
         let dayText = weekday[dayNo];
@@ -295,34 +317,35 @@ function displayArticles(articleArray){
 
 
         //Add interested subjects
-        let subBasedOff = article.subjects
-        var str = ""
+        if(isAll){
+            let subBasedOff = article.subjects
+            var str = ""
 
-        numSubBased = subBasedOff.length
-        for(var j=0; j<numSubBased; j++){
-            if(j == numSubBased -1){
-                str = str.slice(0,-2) //remove old comma
-                str = str + " and " + subBasedOff[j] //add subject and and
-            }else{
-    
-                str = str + subBasedOff[j] + ", "
+            numSubBased = subBasedOff.length
+            for(var j=0; j<numSubBased; j++){
+                if(j == numSubBased -1){
+                    str = str.slice(0,-2) //remove old comma
+                    str = str + " and " + subBasedOff[j] //add subject and and
+                }else{
+        
+                    str = str + subBasedOff[j] + ", "
+                }
             }
+            
+            
+            let basedOffDiv = document.createElement('div')
+            basedOffDiv.className = "unit-100"
+
+            let basedOffTitle = document.createElement('strong')
+            basedOffTitle.innerHTML = "Becasue of your interest in: " 
+            basedOffDiv.appendChild(basedOffTitle)
+
+            let basedOff = document.createElement('a')
+            basedOff.innerHTML = str
+            basedOffDiv.appendChild(basedOff)
+
+            div4.appendChild(basedOffDiv)
         }
-        
-        
-        let basedOffDiv = document.createElement('div')
-        basedOffDiv.className = "unit-100"
-
-        let basedOffTitle = document.createElement('strong')
-        basedOffTitle.innerHTML = "Becasue of your interest in: " 
-        basedOffDiv.appendChild(basedOffTitle)
-
-        let basedOff = document.createElement('a')
-        basedOff.innerHTML = str
-        basedOffDiv.appendChild(basedOff)
-
-        div4.appendChild(basedOffDiv)
-        
 
         //add all divs
         div3.appendChild(div4);
