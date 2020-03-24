@@ -3,17 +3,19 @@ const express = require('express'); //import express framework
 const fs = require('fs'); //import file system framework
 const Datastore = require('nedb'); //import database framework
 const fetch = require("node-fetch"); //import fetch function
-const schedule = require('node-schedule')
+const schedule = require('node-schedule') //import the schedular framework
 
 
-//const initalizePassport = require('./passport-config')
+//Set up passport and cookie parser for logins
 const passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy;
-
 const cookieParser = require('cookie-parser')
 
-
-// importing not wokring
+/*
+    Promise.All of a JSON object
+    see https://www.npmjs.com/package/promise-all-properties
+    by marcelowa
+*/
 async function promiseAllProperties(promisesMap) {
     if (promisesMap === null || typeof promisesMap !== 'object') {
         return Promise.reject(new TypeError('The input argument must be of type Object'));
@@ -30,14 +32,7 @@ async function promiseAllProperties(promisesMap) {
 }
 
 
-
-//const sqlite3 = require('sqlite3')
-
-
-//  PUT THE DATA IN THE GET REQUEST !!!!!
-
-//Set constants
-
+//Set the array of supported subjects
 const supportedSubjects = [
 "General Mathematics",
 "Mathematical Methods",
@@ -86,7 +81,14 @@ const supportedSubjects = [
 "Diploma of Buisness"
 ]
 
-searchTerms = { //When evaluate say a list would have been better
+/*
+  JSON object where the key is the subject and the value is the search term
+  If there is no search term, then the subject name will be used
+
+  Eg General math will be searched as math
+  Physics will be searched as physics
+*/
+searchTerms = { //When evaluate say an array of search terms would have been better
 "General Mathematics" : "Math",
 "Mathematical Methods" : "Math",
 "Essential Mathematics": "Math",
@@ -110,12 +112,13 @@ searchTerms = { //When evaluate say a list would have been better
 "Diploma of Buisness": "Buisness"
 }
 
-const numResults = 10; // Set desired number of results
+const numResults = 10; // Set desired number of results for articles of each subject 
 
-//Database
+//Create and load the article database
 const database = new Datastore("public/data/database")
 database.loadDatabase()
 
+//Create and load the user database
 const usersDatabase = new Datastore("public/data/userDatabase")
 usersDatabase.loadDatabase()
 
@@ -141,12 +144,7 @@ passport.deserializeUser(function(id, done) {
     });
 });
 
-
-
-
-
-
-
+//#region setup server
 //Server
 const app = express(); //Initialise the express object
 
@@ -154,64 +152,75 @@ const app = express(); //Initialise the express object
 app.listen(3000, () => console.log('listening on port 3000')); 
 
 //Set the static directory to the folder public
-app.use(express.static('public',{index: false})); //lets custom code deal with "/" dir
+app.use(express.static('public',{index: false})); //lets custom code deal with Get "/" dir
 
-app.use(require('express-session')({ secret: 'xyrexy', resave: false, saveUninitialized: false }))
+//Enable sessions, cookie parser is used for sessions
+app.use(require('express-session')({ secret: 'thefatbrowncatjumpsoverthelazylog', resave: false, saveUninitialized: false }))
 app.use(cookieParser())
 
-// Initialize Passport and restore authentication state, if any, from the
-// session.
+// Initialize Passport and restore authentication state, if any, from the session
 app.use(passport.initialize());
 app.use(passport.session());
 
-
+//Set the size limit of json files to 1mb to prevent spam
 app.use(express.json({limit: '1mb'}));
+////#endregion
 
-//Schedule job
-var j = schedule.scheduleJob('0 1 * * *', function(fireDate){
+//Schedule update articles to run once every midnight
+var j = schedule.scheduleJob('0 1 * * *', function(fireDate){ // run every midnight
     updateArticles(fireDate)
     console.log('This job was supposed to run at ' + fireDate + ', but actually ran at ' + new Date());
 });
 
+//Setup the passport local strategy to get user info from the database
+passport.use(new LocalStrategy({usernameField: "email"}, //Change the default usernameField from username to email
 
-passport.use(new LocalStrategy({
-    usernameField: "email",
-},
-
-function(username, password, done) {
-  usersDatabase.findOne({ email: username }, function(err, user) {
-    if (err) { return done(err); }
-    if (!user) {
-        console.log("Incorrect email")
-      return done(null, false, { message: 'Incorrect email.' });
-    
+    //done is structured as (error, user, login info (JSON))
+    function(username, password, done) { //function that finds user information based on username or password
+    usersDatabase.findOne({ email: username }, function(err, user) { //Find the associated user from the database 
+        //Should only be one user but use usersDatabase.findOne just incase.
+        //Potentially check if are returned using find and then log an error if so
+        if (err) { return done(err); } //return error
+        if (!user) { //if no user than the email must be incorrect
+            console.log("Incorrect email") //Doesnt have to be ambiguous because this is server side
+            return done(null, false, { message: 'Incorrect email or password.' }); //ambiguopus as sent to client
+        }
+        //if a user has been returned
+        if (password != user.password) { //check passwords match
+            console.log("Incorrect password") //Doesnt have to be ambiguous because this is server side
+            return done(null, false, { message: 'Incorrect email or password.' }); //ambiguopus as sent to client
+        }
+        return done(null, user); //sucess, return the user information
+    });
     }
-    if (password != user.password) {
-        console.log("wrong pass")
-        return done(null, false, { message: 'Incorrect password.' });
-    }
-    console.log("good")
-    return done(null, user);
-  });
-}
 ));
 
-
+//Load the home page
 app.get("/", (req,res) => {
-    var currentUser = req.user
+    var currentUser = req.user //get the currently logged in user
+    /*
+        the request object doesnt usually carry a user atribute
+        This is where passport middleware intercepts the request and appends the user artibute based on the local strategy defined above
+        Cookies are used to determine user persistance
+    */
+
     //console.log("curren user is: " + JSON.stringify(currentUser))
-    if(currentUser == undefined) {
+    if(currentUser == undefined) { //if the user isnt logged in redirect so they can login
         //console.log("Page / redirected, user: " + currentUser)
         res.redirect("/login")
     }else {
         //console.log("Page / not redirected, user: " + currentUser)
-        res.sendFile(__dirname + "/public/index.html");
+        res.sendFile(__dirname + "/public/index.html"); //user is logged in, send page. potentially also send username
     }    
 });
 
 
-
+//load the login page
 app.get("/login", (req,res) => {
+    /*
+    similar to the process above except if the user is already logged in will redirect to the articles page
+    comments are not necessary here, please see above
+    */
 
     var currentUser = req.user
 
@@ -225,33 +234,36 @@ app.get("/login", (req,res) => {
     }    
 });
 
+//User has entered in information and clicked submit on the form
 app.post('/login', function(req, res, next) {
     
-    passport.authenticate('local', function(err, user, info) {
+    passport.authenticate('local', function(err, user, info) { //see local strategy for what the function returns (err, user, info)
 
+        //Unknown error
         if (err) { 
             let data = {
                 success: false,
                 message: "Error when authenticating, please refresh the page and try again"
             }
 
-            res.json(data)
+            res.json(data) //sends the json data to the client
             console.log("Error when authenticating, please refresh the page and try again")
-            return next(err); 
-  
+            return next(err); //breaks out of the login process
         } 
 
-        if (!user) { //auth failed, send JSON data about error
+        if (!user) { //email or password is wrong
             let data = {
                 success: false,
-                message: info.message
+                message: info.message //should alwasy say Error Username or Password is incorrect
             }
-            res.json(data)
-            return //so log in doesnt run
+            res.json(data) // Sends the json data to the client
+            return //breaks out of the login process
         } 
 
-        console.log("login user is : " + JSON.stringify(user))
+        //console.log("login user is : " + JSON.stringify(user))
+        
         req.logIn(user, function(err) { //log in the as no longer done automatically by middleware
+            //error process is same as above
             if (err) { 
             
                 let data = {
@@ -278,7 +290,7 @@ app.post('/login', function(req, res, next) {
 });
 
 
-
+//send the register page
 app.get("/register", (req,res) => {
 
     var currentUser = req.user
@@ -297,6 +309,7 @@ app.get("/register", (req,res) => {
 
 
 app.post("/register", (req,res) => {
+    //Create a new user object from the request
     var newUser = {
         name: req.body.name,
         email: req.body.email,
@@ -304,17 +317,22 @@ app.post("/register", (req,res) => {
         subjects: req.body.subjects
     }
 
-    usersDatabase.insert(newUser, (err,user) => { //user has an _id atribuite where newUser doesnt
-        if(err){
+    /*  
+        Insert the new user into the database
+        leave the field _id empty for user so that nedb will create one
+        Function returns user which is same as newUser but with the atribute _id
+    */
+    usersDatabase.insert(newUser, (err,user) => { 
+        if(err){ //if there is an error adding the new user notifiy the user and say couldnt log in
             let data = {
                 success: false,
                 message: "Error when inserting into db"
             }
             res.json(data)
-            return
-            
+            return        
         }
-        req.logIn(user, function(err) { //log in the as no longer done automatically by middleware
+
+        req.logIn(user, function(err) { //log in the as no longer done automatically by middleware, same as login process
             if (err) { 
                 let data = {
                     success: false,
@@ -334,7 +352,7 @@ app.post("/register", (req,res) => {
     });       
 });
 
-async function buildResponse(toServe){
+async function buildResponse(toServe){ //Build the response based on the supplied subjects (toServe)
 
     let promise = new Promise( (resolve, reject) => {
         var promises = [];
@@ -456,12 +474,14 @@ app.post("/getSubjects", (req,res) =>{ //sends the supported subjects
 });
 
 
-//Helper functions and utility 
-/**
- * Shuffles array in place.
- * @param {Array} a items An array containing the items.
- */
+
 function shuffle(a) {
+    //Helper functions and utility 
+    /**
+     * Shuffles array in place.
+     * @param {Array} a items An array containing the items.
+     */
+
     var j, x, i;
     for (i = a.length - 1; i > 0; i--) {
         j = Math.floor(Math.random() * (i + 1));
@@ -565,6 +585,8 @@ async function getArticles(subject,db){
         Uses the supplied subject to build a query to the NYT api
         Querys the NYT api and ensures sucess
         Saves data in database and resets timer for daily update of articles
+
+        https://api.nytimes.com/svc/search/v2/articlesearch.json?api-key=apiKaey&q=searchterm&
     */
 
     //Defined constants
@@ -589,7 +611,7 @@ async function getArticles(subject,db){
     if(searchTerm = "undefined") searchTerm = subject;
 
     // Create the query
-    query = queryBase + "&q=" + searchTerms; //append the steralised subject to the query
+    query = queryBase + "&q=" + searchTerm; //append the steralised subject to the query
     query = query + "&begin_date=" + lastWeek; //apped the steralised begin date to the query
     query = query + "&end_date=" + today; //append the steralised end date to the query
     query = query + "&sort=" + sort; //append the sort type to the query
@@ -709,7 +731,7 @@ function subjectsToSearchTerms(chosenSubjects){
     var toSearch = [] //define empty array
 
     let noSub = chosenSubjects.length //get length to loop through each subject
-    for(var i=0; i<noSub; i++){
+    for(var i=0; i<noSub; i++){ //for each subject
 
         let currentSubject = chosenSubjects[i]
         var term = searchTerms[currentSubject]
