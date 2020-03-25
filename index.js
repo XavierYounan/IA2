@@ -721,8 +721,6 @@ async function updateArticles(fireDate){
     });
 
 
-    
-
 }
 //#endregion
 

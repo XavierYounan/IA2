@@ -94,14 +94,10 @@ function createButtons(subjects){
 }
 
 function fCombineArticles(data){
-    var subjects = Object.keys(data)
-    //console.log(subjects)
-
+    var subjects = Object.keys(data) // Get all the subjects server has returned
     var noSub = subjects.length
     //console.log(noSub)
-
     var allArticles = []
-
     for(var i=0; i<noSub; i++){
         //console.log(i)
         var articles = data[subjects[i]]
